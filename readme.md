@@ -1,20 +1,11 @@
-# ``research-pages``
+# AFM Image Segmentation
 
-``research-pages`` is a boilerplate Github Repository containing a Github Pages template ready to be interpretted by Jekyll.  ``research-pages`` are meant to be used during ongoing scientific research to provide centralized reporting, code sharing, data sharing, and discussion.
+If you were directed here through a reference in a publication, the AFM segmentation code is a Matlab script called FullSeg2.m
 
-# Use this code
+It can be found in _data/FullSeg2.m
 
-1. Fork this repository
-  
-  *You can rename the repository once you have forked it.*
+It can be sensitive to certain parameters - I will be writing a full paper on this algorithm and its applications, at which point I will make it more user-friendly and well-documented. In its present form, it is only effective on images with non-overlapping fiber-like structures with relatively good contrast.
 
-2. Change values in ``_config.yml``
+If you would like to use the code, email me at:
 
-# Jekyll for Science
-
-This repository is designed to make web hosting of scientific research much easier.  On top of the Jekyll boilerplate, we have added
-
-* [Bootstrap](http://getbootstrap.com) for styling
-* [MathJax](www.mathjax.org) for equations
-* [JQuery](www.jquery.com) for client side manipulations
-* [Octicons](https://octicons.github.com/) for Github hub's glyhpicons
+npersson3@gatech.edu
