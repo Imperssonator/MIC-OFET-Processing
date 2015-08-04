@@ -1,0 +1,204 @@
+---
+# Content at the top of these posts are called YAML Front Matter.
+# YAML Front Matter and variable-like values that can easily used inside the
+# page content later on.  Control expressions like ``for`` & ``if`` can be used also.
+
+# layout is a required variable
+# post corresponds to ``_includes/post.html`` which is a template to interpret the
+# of the post in this file
+layout: post
+# title of your post
+title:  "Nils Persson's Research Blog"
+# the author of the post's github user name
+author: dnazarian 
+# Data and time of the post
+date:   2014-12-10 
+
+# Optional fields
+categories:
+tags: 
+
+---
+
+#Motivation 
+
+![organic electronic devices](https://farm8.staticflickr.com/7462/15990131431_f2e486124c_o.jpg)
+
+In order to reliably fabricate organic electronic devices, we must understand the quantitative relationship between their structure and their electronic properties. One widely studied system is that of poly-3-hexylthiophene (P3HT), a solution-processable polymeric semiconductor, and its charge carrier mobility in field effect transistors.
+
+P3HT has a backbone with good hole conductor properties and side chains that make it soluble in organic solvents. 
+
+![P3HT](https://farm8.staticflickr.com/7520/15806386447_0f89739507_b.jpg)
+
+The crystal structure of P3HT has been thoroughly established in the extensive literature on the material:
+
+![structure of P3HT](https://camo.githubusercontent.com/8bbe7e79209299f72e536e703d5bbd36d8425661/68747470733a2f2f6c68362e676f6f676c6575736572636f6e74656e742e636f6d2f2d315f5071463873652d71412f56416141704431344568492f41414141414141414159492f566c492d556a5276796d772f77313537362d683335362d6e6f2f5069253242537461636b253242616e6425324265646765253341666163652e6a7067)
+
+(a) (1 0 0) direction: alkyl stacking; (0 1 0): pi-stacking; (0 0 1): chain backbone (b) Face-on orientation, (c) edge-on orientation
+
+Molecular Dynamics Simulations depict the ideal alkyl and pi-stacking conformations. Charge transport is fastest along the extended chain backbone (0 0 1) and pi-stacked directions (0 1 0). It is almost negligible for the purposes of this study, where our data is 2-dimensional. However, the measured hole mobility of a macro-scale film is usually orders of magnitude lower than that of the crystalline state.
+
+![stacking](https://farm9.staticflickr.com/8587/15992779985_305e514d09_b.jpg)
+
+P3HT forms nanofibers during processing whose lengths correspond to the (0 1 0)/pi-stacking direction. The nanofibers register as regions with greater hardness/crystallinity in tapping-mode Atomic Force Microscopy (AFM) images:
+
+![fibers](https://farm8.staticflickr.com/7476/15992779925_637ea620f4_b.jpg)
+
+
+#Goal
+
+Our goal is to quantify the structure at the top layer of the P3HT thin film transistors, as represented by AFM images and to construct structure-property relationship µ = f(microstructure), where µ is hole mobility. 
+
+![function](https://farm8.staticflickr.com/7570/15967017196_7327903159_o.png)
+
+#Data 
+
+[The Reichmanis Group](http://reichmanis.chbe.gatech.edu/research.html) in ChBE performs studies on P3HT structure evolution during processing. They have a substantial collection of Atomic Force Microscopy (AFM) data paired with field-effect mobility measurements for P3HT thin film at a wide range of processing conditions.
+Twenty such AFM images and their paired mobility will be used for this study. 
+
+![data](https://lh3.googleusercontent.com/-XLh4YvT_WaQ/VAaAmALDQUI/AAAAAAAAAX4/BuzdJgYV6EI/w2228-h1188-no/Figure%2B2b.jpg)
+
+#Approach
+
+Simply by inspection, we can choose to regress against average fiber length and obtain a fit with a 2nd order polynomial.(Detailed for obtained the fiber lengths will be discussed in more detail in the method section) 
+
+![fiber length fit](https://farm8.staticflickr.com/7549/15967017276_520c3dc972_o.png)
+
+However, many more potentially important features exist:
+	- Orientation
+	- Area fraction
+	- Fiber density
+
+Therefore we needed a systematic method of selecting the most relevant features. To do this we: 
+1. Compute spatial statistics for each image in a dataset. Spatial statistics exhaustively generates microstructural features as a matrix of 2-point correlations.
+2. Perform dimensionality reduction to determine the most informative spatial statistics. Dimensionality reduction was done with Principal component analysis (PCA), which determines linear combinations of spatial statistics that capture the most morphological variation.
+
+It is suspected based on literature that the microstates should identify whether a local state is amorphous or a fiber, and if a fiber, it should identify the orientation of that fiber. 
+Therefore, to perform spatial statistics for each image we must first develop a method to identify fibers and their orientation. 
+This can be done through image segmentation
+
+#Image Segmentation 
+
+##Single Value Threshold Based Visual Inspection 
+In our first attempt at image segmentation, we applied a single threshold to greyscale of AFM images. The value for this threshold was chosen based on a guess and check by visual inspection. This gave a rough distinction between fibrilar and amorphous regions. 
+We then performed spatial statistics on the black and white segmented images and validated our understanding of the spatial statistics algorithm provided to the class by Tony Fast. 
+Details about this initial investigation can be followed at the [Spatial Statistics Post](http://imperssonator.github.io/MIC-OFET-Processing/2014/09/29/Spatial-Statistics.html) 
+
+This method was not ideal because it left room for human error and was not an efficient method for a large dataset. 
+
+##Single Value Threshold Based on Derivative of Number of Connected Components. 
+In our second attempt at image segmentation, we developed a method to systematically choose an optimal threshold value. The algorithm applied a wide range of threshold values to a single AFM images and for each threshold image, computed the number of connected components (connected components representing individual fibers). As the threshold value was increased, if the number of connected components plateaued, the threshold value corresponding to the plateau was chosen. 
+The following image shows a brief example of our work.
+
+![Thresholding](https://farm6.staticflickr.com/5616/15408121609_eece533bef_b.jpg)
+For details on the algorithm, see the [Thresholding Post](http://imperssonator.github.io/MIC-OFET-Processing/2014/10/08/Thresholding.html). 
+
+Although an improvement on the first thresholding effort, this algorithm still used a single threshold value for each image. A single value threshold method fails because the pixel intensities associated with a fiber vary even across single AFM image.  
+
+##Determining Fiber Orientation 
+[regionprops](http://www.mathworks.com/help/images/ref/regionprops.html#bqkf8ik) was used to fit an ellipse to each connected component obtained from the previous thresholding to determine the orientation of that fiber.
+To see a proof of concept for this method visit the [Fiber Orientation Post](http://imperssonator.github.io/MIC-OFET-Processing/2014/10/21/Fiber-orientation.html)
+
+Overlapping fiber, especially those in completely different directions will contaminate the orientation calculation. The image below shows a case where the ellipse fit to the connected component in green will choose the green vector to calculate the orientation of the fiber. This orientation is incorrect for both fibers.
+
+![orientation issue](https://farm6.staticflickr.com/5609/14974332554_0d084b46e6_o.png)
+
+This issue is primarily caused by insufficient thresholding. Attempts were made to separate such connected fibers using tools like [erode](http://www.mathworks.com/help/images/ref/imerode.html) in matlab. We also attempted to identify orientation despite the connectivity using [hough transformations](http://matlab.izmiran.ru/help/toolbox/images/enhanc11.html). Both attempts were unsuccessful.
+
+##Orientation Informed Fiber Identification 
+The final and most successful attempt at image segmentation combined all lessons learned from previous attempts. 
+The algorithm involves applying a range of threshold values to a single image. For each thresholded image, two matrices were calculated. The values in the matrices correspond to pixels in the image.
+The first matrix identified the orientation of the fibers. The second matrix identified the confidence with which the orientations belong to a fibular region. 
+To calculate these matrices, for each pixel, if the pixel was a part of a connected component, regionprops was used to fit an ellipse to the connected component. The vector associated with the major axis of the ellipse was used to determine orientation. The eccentricity of the ellipse, defined as the ratio of the major axis to the minor axis, to determine the extent to which the region was fiber like. The higher the eccentricity, the more likely that the region was a fiber. 
+This portion of the algorithm is summarized in the figures below.
+![orientation algo1](https://farm8.staticflickr.com/7564/15805516720_d517bdaf26_b.jpg)
+![orientation algo2](https://farm8.staticflickr.com/7541/15990800091_a4ca49f3c9_b.jpg)
+
+Next the algorithm finds the maximum confidence across all thresholds and takes their corresponding angles.
+
+![max confidence](https://farm8.staticflickr.com/7517/15805399128_8e8dc63f79_b.jpg)
+
+This algorithm allows us to identify individual fibers and their corresponding orientation as shown below:
+![orientation](https://farm8.staticflickr.com/7517/15994700255_6e68515511_b.jpg)
+Here the dark blue represents the amorphous phase, and the fibers are color coded according to their angle off of the horizontal. The portion of the color bar at right from -90 to 90 degrees encompasses the fiber angles.
+
+The algorithm works even for excessively noisy images such as:
+![noisy ex](https://farm8.staticflickr.com/7504/15808990007_3217c39141_b.jpg)
+
+The final result can be used to determine useful features of the microstructure such as average fiber length. 
+Other informative insights can be gained from visualization of fiber orientation. For example, the image below shows that fibers tend to form in clumps of 3 or four and have long range order.
+![clumping img](https://farm8.staticflickr.com/7533/15992780165_8137b9e2fd_b.jpg)
+
+More details about the algorithm can be found at its [original post](http://imperssonator.github.io/MIC-OFET-Processing/2014/11/12/Orientation.html).
+
+This algorithm has also been made available for public use with the help of Tony Fast. 
+
+#Spatial Statistics 
+
+The range of orientations found for the fibers in each microstructure were binned into five states as shown below.
+
+![binning](https://farm9.staticflickr.com/8609/15992779725_dc3a3d37b9_b.jpg)
+![binning2](https://farm8.staticflickr.com/7530/15807056707_38ba00fb2a_o.png)
+
+With five possible microstates ( 90 degrees, 45 degrees, -45 degrees, 0 degrees, amorphous), the spatial statistics matrix is 5x5, where each entry represents a matrix of either autocorrelation or cross correlation of microstates. 
+
+![ss matrix](https://farm8.staticflickr.com/7473/15370533734_2b11e286c9_b.jpg)
+
+However, only four of the correlations are independent. Therefore, we generate these four spatial statistic matrices for all of our images. 
+
+The plot below shows the spatial statistics for a 90 degree, 90 degree oriented fiber autocorrelation for a single AFM image. 
+
+![9090ss](https://farm8.staticflickr.com/7535/15811747290_dbba2d125d_b.jpg)
+
+The highest intensity of 0.08 indicates that for this particular device, the area fraction of vertically oriented fibers is 8%. The green arrows on the AFM image show a few of these vertically oriented fibers. 
+The light blue color on the spatial statistics heat map corresponds to 3%, indicating that 3% of vectors [0,55] have both their head and tail in a fiber. 
+
+The plot below shows the spatial statistics for a 90 degree, 90 degree oriented fiber autocorrelation for a different AFM image.
+
+![9090ssdevice7](https://farm9.staticflickr.com/8619/15998600385_5fafa6ef7b_b.jpg) 
+
+Here we find that area fraction of vertically oriented fibers is similar to the previous device, yet the percent of vectors [55.0] that have both head and tail in a fiber is less, indicating shorter vertically oriented fibers, possibly non-fibrilar. 
+
+Similar analysis can be performed for the cross correlations. 
+
+#Dimensionality Reduction 
+Principle Component Analysis (PCA) was performed on the combined four spatial statistics. 
+Here we show the 90°/90° autocorrelation portion of the first principal component. Just as in spatial statistics, the x-y coordinates still correspond to vectors, but the intensities now indicate degrees of variance over the set of images.
+
+![90/90 pca](https://farm8.staticflickr.com/7474/15806779299_4c2ab7d112_o.png) 
+
+We find that the zero vector varies the most over the image set. This is the area fraction of 90° fibers. We also find that vertically oriented vectors vary a lot over the image set. This is indicative of fiber length. 
+We find that spatial statistics combined with PCA objectively identified fiber length as a key feature of the dataset. 
+
+We can now analyze the data in Principle Component (PC) state as shown below. 
+
+![PC space](https://farm8.staticflickr.com/7525/15992780025_f90cca6c1c_b.jpg) 
+
+PCs 1 and 2 seem to capture some combination of fiber length, density, and thickness.
+
+#The Structure-Property Relationship
+Multiple regression of measured mobilities (Y) vs. scores in the first four PCs (X) was performed to obtain µ = f( structure )
+The cross-validated mean average error (CVMAE) is shown in the table below for range of polynomial order and principle components. 
+
+![eror](https://farm9.staticflickr.com/8611/15813389377_d0fe23e6a5_o.png)
+
+The best fit was obtained based the results of the above Leave-One-Out Cross Validation error to be a 2nd order polynomial in first two PC scores. 
+
+µ = B0 +B1 x PC1 score + B2 x PC2 score + B3 x PC1 Score x PC2 score + B4 x PC1 score ^2 + B5 x PC2 score ^2
+
+where B = [-0.0003;0.0007;2.13e-05;0.0336;2.82e-05;-6.77e-05]
+
+A similar approach was used to determine the best fit for mobility vs fiber length. 
+The plot below shows predicted mobility (using PCs and Fiber Length ) vs measured mobility for all devices studied. 
+
+![fit](https://farm9.staticflickr.com/8612/15806779489_d738536bc8_o.png)
+
+# Refences
+
+-  [J. A. Lim, F. Liu, S. Ferdous, M. Muthukumar, and A. L. Briseno, Mater. Today, 2010, 13, 14–24.](http://linkinghub.elsevier.com/retrieve/pii/S1369702110700808)
+-  [R. Noriega, J. Rivnay, K. Vandewal, F. P. V Koch, N. Stingelin, P. Smith, M. F. Toney, and A. Salleo, Nat. Mater., 2013, 12, 1038–44.](http://doi.wiley.com/10.1002/adfm.201304247)
+-  [S. Himmelberger, K. Vandewal, Z. Fei, M. Heeney, and A. Salleo, Macromolecules, 2014, 47, 7151–7157.](http://doi.wiley.com/10.1002/adfm.201304247)
+-  [Y.-K. Lan and C.-I. Huang, J. Phys. Chem. B, 2009, 113, 14555–64.](http://pubs.acs.org/doi/abs/10.1021/ma8023415)
+-  [J.-C. Bolsée, W. D. Oosterbaan, L. Lutsen, D. Vanderzande, and J. Manca, Adv. Funct. Mater., 2013, 23, 862–869.](http://doi.wiley.com/10.1002/adfm.201102078)
+
+
