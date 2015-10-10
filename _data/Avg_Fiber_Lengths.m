@@ -2,10 +2,12 @@ FL = zeros(18,1);
 
 for i = 1:length(DEV)
     disp(i)
-    load(DEV(i).Seg);
+    load(DEV(i).Bin);
     disp('loaded')
-    Fibers = MAXCONF~=0;
+    Lengths = [];
+    Fibers = MS(:,:,1)+MS(:,:,2)+MS(:,:,3)+MS(:,:,4);
+    Fibers = Fibers~=0;
     REGS = regionprops(Fibers,'MajorAxisLength');
-    Lengths = [REGS(:).MajorAxisLength];
+    Lengths = [Lengths REGS(:).MajorAxisLength];
     FL(i,1) = mean(Lengths);
 end

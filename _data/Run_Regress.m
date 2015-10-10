@@ -1,11 +1,15 @@
 REG = struct();
 
-ERR = zeros(4);
+PCs = 5;
+PolyDeg = 3;
+CVMAE = zeros(PCs,PolyDeg);
+MAE = zeros(size(CVMAE));
 
-for i = 1:4
-    for j = 1:4
-        REG((i-1)*4+j).r = MultiPolyRegress(Score(1:18,1:i),MOB,j);
-        ERR(i,j) = REG((i-1)*4+j).r.CVMAE;
+for i = 1:PCs
+    for j = 1:PolyDeg
+        REG(i,j).r = MultiPolyRegress(Score(:,1:i),MOB,j);
+        CVMAE(i,j) = REG(i,j).r.CVMAE;
+        MAE(i,j) = REG(i,j).r.MAE;
     end
 end
 

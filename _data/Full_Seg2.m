@@ -19,14 +19,14 @@ function [SEGfile,ORIENT,MAXCONF] = Full_Seg2(filepath)
 %% Full Seg
 
 % Full segmentation takes a filepath to an RGB image at 'filepath'
-% 
+%
 % It returns ORIENT, where each element of ORIENT is the expected
 % orientation of the fiber that pixel is in
 %
 % And, it returns MAXCONF, which indicates how confident it was that each
 % pixel was in a fiber of orientation found in the corresponding element of
 % ORIENT
-% 
+%
 % If an element of MAXCONF is 0, it means that pixel is amorphous.
 % Amorphous pixels in ORIENT also show as 0 angle, so this needs to be
 % addressed by the user after the code is run, typically with the following
@@ -72,13 +72,13 @@ Orient = zeros(m,n,100);
 Label = zeros(m,n);
 
 
-%% Iterate over thresholds... 
+%% Iterate over thresholds...
 
 parpool                         % You must have parallel computing enabled for this to run with parfor loops.
 parfor ii = Minthresh:Maxthresh
-%     disp(ii)
+    %     disp(ii)
     level = ii/100;
-
+    
     BW = im2bw(IM,level);
     RP = regionprops(BW,'Area','Eccentricity','Orientation','Solidity');
     Label = bwlabel(BW,8);
@@ -109,22 +109,22 @@ parfor ii = Minthresh:Maxthresh
     Conf(:,:,ii) = Confii;
     Orient(:,:,ii) = Orientii;
     
-%     for jj = 1:NumComps
-%         %tic
-%         [Confidence,Orientation] = fiber_conf(jj,RP);
-%         %toc
-%         if Confidence > 0
-%             Orient(:,:,ii) = Orient(:,:,ii) + (Label==jj) .* Orientation;
-%             Conf(:,:,ii) = Conf(:,:,ii) + (Label==jj) .* Confidence;
-% %         else
-% %             Orient(:,:,ii) = Orient(:,:,ii) + (Label==jj) .* Orientation;
-%         end
-%         %length(find(Orient(:,:,ii)))
-%         
-%     end
+    %     for jj = 1:NumComps
+    %         %tic
+    %         [Confidence,Orientation] = fiber_conf(jj,RP);
+    %         %toc
+    %         if Confidence > 0
+    %             Orient(:,:,ii) = Orient(:,:,ii) + (Label==jj) .* Orientation;
+    %             Conf(:,:,ii) = Conf(:,:,ii) + (Label==jj) .* Confidence;
+    % %         else
+    % %             Orient(:,:,ii) = Orient(:,:,ii) + (Label==jj) .* Orientation;
+    %         end
+    %         %length(find(Orient(:,:,ii)))
+    %
+    %     end
     
-%     filename = ['thresh' num2str(ii) '_2'];
-%     save(filename,'Orient')
+    %     filename = ['thresh' num2str(ii) '_2'];
+    %     save(filename,'Orient')
     
 end
 
@@ -150,4 +150,4 @@ pcolor(ORIENT + (MAXCONF==0).*-180);
 hc=colorbar; shading flat; axis equal; set(gca,'YDir','reverse');
 
 end
-    
+

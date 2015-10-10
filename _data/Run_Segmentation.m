@@ -28,7 +28,7 @@
 %% Compute the Spat Stats
 
 for i = 1:length(DEV)
-    disp(i)
+%     disp(i)
     load(DEV(i).Bin);
     SS = zeros(1,2161^2*4);
     [T11,xx11] = SpatialStatsFFT(MS(:,:,1),[],'periodic',false);
