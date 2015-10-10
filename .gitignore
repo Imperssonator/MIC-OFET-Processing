@@ -1,1 +1,10 @@
 _site
+*.png
+*.tif
+*.mat
+*.jpg
+*.zip
+*.pdf
+*.xlsx
+*.tiff
+*.ppt
