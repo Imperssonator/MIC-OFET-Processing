@@ -1,3 +1,19 @@
+%    Automatic Orientational Segmentation of Non-Overlapping Fiber-like Objects from Noisy Images
+%    Copyright (C) 2014  Nils Persson
+%
+%    This program is free software: you can redistribute it and/or modify
+%    it under the terms of the GNU General Public License as published by
+%    the Free Software Foundation, either version 3 of the License, or
+%    (at your option) any later version.
+%
+%    This program is distributed in the hope that it will be useful,
+%    but WITHOUT ANY WARRANTY; without even the implied warranty of
+%    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+%    GNU General Public License for more details.
+%
+%    You should have received a copy of the GNU General Public License
+%    along with this program.  If not, see <http://www.gnu.org/licenses/>
+
 function [SEGfile,ORIENT,MAXCONF] = Full_Seg2(filepath)
 
 %% Full Seg
@@ -58,7 +74,7 @@ Label = zeros(m,n);
 
 %% Iterate over thresholds... 
 
-
+parpool                         % You must have parallel computing enabled for this to run with parfor loops.
 parfor ii = Minthresh:Maxthresh
 %     disp(ii)
     level = ii/100;
@@ -122,7 +138,7 @@ for nn = 1:m
     end
 end
 
-SEGfile = ['Dalsu data/', filepath(1:end-4), '_Seg'];
+SEGfile = [filepath(1:end-4), '_Seg'];      % end-4 to remove typical image extensions (.jpg, .png, .tif...)
 
 save(SEGfile,'-v7.3')
 
